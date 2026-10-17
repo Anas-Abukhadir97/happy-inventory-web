@@ -75,3 +75,35 @@ jobs:
           path: frontend/artifacts/phase5
           if-no-files-found: warn
           retention-days: 14
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - run: docker build -t happy-inventory-web:ci .
+  publish:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [frontend, e2e, container]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - name: Publish web image by source commit
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          docker buildx build --push --tag "ghcr.io/anas-abukhadir97/happy-inventory-web:$GITHUB_SHA" --metadata-file image-metadata.json .
+          python3 -c 'import json; print("ghcr.io/anas-abukhadir97/happy-inventory-web@" + json.load(open("image-metadata.json"))["containerimage.digest"])' > image-digest.txt
+          cat image-digest.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: web-image-digest
+          path: image-digest.txt
+          retention-days: 90

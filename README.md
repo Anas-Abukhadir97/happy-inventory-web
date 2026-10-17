@@ -15,6 +15,12 @@ npm run dev
 
 Open https://localhost:5173 and accept the local development certificate in your browser. Vite serves HTTPS so the browser can use Secure refresh cookies, and proxies `/api` to the sibling backend on localhost:5080. Start the backend first. First-run demo login is `admin@happywarehouse.com` / `P@ssw0rd` in Development only. Do not put secrets in `VITE_*` variables; all frontend bundles are public. No environment variables are required now. index.html receives its title from localization on startup.
 
+## Container image
+
+The production web Dockerfile builds pinned Node dependencies and serves the static app with Caddy as user 10001. Caddy terminates local HTTPS at port 8443 and proxies `/api/*` to the sibling API on a private Compose network, preserving same-origin secure refresh cookies. Its local certificate authority lives in a persistent Caddy volume. Trust that CA on a development machine before browser use; this is not a public deployment certificate. The API repository owns the local Compose file and database volume. Build the web image independently with `docker build -t happy-inventory-web:local .`.
+
+Web CI builds the container independently. After the checks pass on `main`, the workflow publishes a commit-tagged image to GHCR and uploads its immutable digest. The API repository records tested API/web digest pairs. Azure hosting remains Phase 8.
+
 ## Verify
 
 ```sh
@@ -39,4 +45,4 @@ Warehouse, item, user, dashboard, log, supplier-order and print screens are impl
 
 ## Future features and license
 
-Advanced exports, multi-currency, complete country catalog, warehouse permissions, MFA and procurement UI are future work; see the [canonical backlog](https://github.com/Anas-Abukhadir97/happy-inventory-api/blob/main/docs/backlog.md). Azure remains the final planned phase after cost approval. Container/image pipelines arrive in Phase 6. No open-source license has been selected; source assessment attachments are not published.
+Advanced exports, multi-currency, complete country catalog, warehouse permissions, MFA and procurement UI are future work; see the [canonical backlog](https://github.com/Anas-Abukhadir97/happy-inventory-api/blob/main/docs/backlog.md). Azure remains the final planned phase after cost approval. No open-source license has been selected; source assessment attachments are not published.

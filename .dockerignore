@@ -1,14 +1,17 @@
 .git
-.env
-.env.*
-**/bin
-**/obj
+.github
+.env*
+!.env.example
 node_modules
 dist
 coverage
-**/TestResults
-*.db*
-*.sqlite*
-*.log
+artifacts
+docs
+**/*.db
+**/*.db-*
+**/*.sqlite*
+**/*.log
 *.pdf
 Happy-Inventory.html
+Pasted text.txt
+happy-inventory-strategy.md
