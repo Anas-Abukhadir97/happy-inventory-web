@@ -4,7 +4,7 @@ React + TypeScript + Vite foundations. Personal owner: [Anas-Abukhadir97](https:
 
 ## Status and setup
 
-Phase 5 adds repeatable integrated browser/API verification and keeps the selected English/Arabic language across reloads. The localized supplier-order page supports manual preparation and local delivery status, alongside warehouse/item/user CRUD, dashboards, an Admin-only log viewer and a full-data print report. Auditor sees read-only inventory and supplier requests; Admin and Management can write. The API must run for normal use. Browser access tokens remain in memory with the Phase 3 session flow. The web repository pins the API-owned contract by checksum. eCommerce deductions are exposed to authenticated external clients through the API.
+Phase 6 packages and publishes a non-root web image; the API repository records the [tested API/web digest pair](https://github.com/Anas-Abukhadir97/happy-inventory-api/blob/main/releases/phase-6-tested.json). Phase 5 added repeatable integrated browser/API verification and keeps the selected English/Arabic language across reloads. The localized supplier-order page supports manual preparation and local delivery status, alongside warehouse/item/user CRUD, dashboards, an Admin-only log viewer and a full-data print report. Auditor sees read-only inventory and supplier requests; Admin and Management can write. The API must run for normal use. Browser access tokens remain in memory with the Phase 3 session flow. The web repository pins the API-owned contract by checksum. eCommerce deductions are exposed to authenticated external clients through the API.
 
 Use Node 24.14.1 (see .node-version/.nvmrc):
 
