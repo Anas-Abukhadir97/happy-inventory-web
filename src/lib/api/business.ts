@@ -15,6 +15,8 @@ export type WarehouseStatus = Schemas['WarehouseStatus']
 export type ItemQuantity = Schemas['ItemQuantity']
 export type LogSummary = Schemas['LogSummary']
 export type LogDetail = Schemas['LogDetail']
+export type SupplierOrder = Schemas['SupplierOrder']
+export type SupplierOrderCreate = Schemas['SupplierOrderCreate']
 export type Paged<T> = {
   items: T[]
   page: number
@@ -100,4 +102,8 @@ export const business = {
     return request<Paged<LogSummary>>(`/api/v1/logs?${query}`)
   },
   log: (id: string) => request<LogDetail>(`/api/v1/logs/${encodeURIComponent(id)}`),
+  supplierOrders: (page: number) =>
+    request<Paged<SupplierOrder>>(`/api/v1/supplier-orders?${pageQuery(page)}`),
+  createSupplierOrder: (body: SupplierOrderCreate) =>
+    request<SupplierOrder>('/api/v1/supplier-orders', 'POST', body),
 }

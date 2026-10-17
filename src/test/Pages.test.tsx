@@ -222,6 +222,7 @@ describe('Phase 4 screens', () => {
   })
 
   it('loads every warehouse and item page for the print report', async () => {
+    const print = vi.spyOn(window, 'print').mockImplementation(() => {})
     const statuses = vi
       .spyOn(business, 'warehouseStatuses')
       .mockImplementation(async (number) =>
@@ -252,5 +253,51 @@ describe('Phase 4 screens', () => {
     expect(statuses).toHaveBeenCalledTimes(2)
     expect(items).toHaveBeenCalledTimes(3)
     expect(screen.getByRole('button', { name: en.printReport })).toBeEnabled()
+    await userEvent.setup().click(screen.getByRole('button', { name: en.printReport }))
+    expect(print).toHaveBeenCalledOnce()
+  })
+
+  it('shows the local supplier notice and creates a request for Management', async () => {
+    vi.spyOn(business, 'supplierOrders').mockResolvedValue(page([]))
+    vi.spyOn(business, 'warehouses').mockResolvedValue(page([warehouse]))
+    vi.spyOn(business, 'items').mockResolvedValue(page([item]))
+    const create = vi.spyOn(business, 'createSupplierOrder').mockResolvedValue({
+      id: version,
+      warehouseId: 7,
+      itemId: 5,
+      requestedQuantity: 3,
+      supplierDestination: 'supplier@example.test',
+      status: 'Pending',
+      createdAtUtc: now,
+    })
+    renderAt('/supplier-orders', 'Management')
+    expect(await screen.findByText(en.localDeliveryNotice)).toBeVisible()
+    const user = userEvent.setup()
+    await user.click(screen.getByRole('combobox', { name: en.warehouses }))
+    await user.click(await screen.findByRole('option', { name: 'North Depot' }))
+    await user.click(screen.getByRole('combobox', { name: en.itemName }))
+    await user.click(await screen.findByRole('option', { name: 'Widget' }))
+    await user.clear(screen.getByRole('spinbutton', { name: en.requestedQuantity }))
+    await user.type(screen.getByRole('spinbutton', { name: en.requestedQuantity }), '3')
+    await user.type(
+      screen.getByRole('textbox', { name: en.supplierDestination }),
+      'supplier@example.test',
+    )
+    await user.click(screen.getByRole('button', { name: en.createSupplierOrder }))
+    await waitFor(() =>
+      expect(create).toHaveBeenCalledWith({
+        warehouseId: 7,
+        itemId: 5,
+        requestedQuantity: 3,
+        supplierDestination: 'supplier@example.test',
+      }),
+    )
+  })
+
+  it('shows supplier requests read-only for Auditor', async () => {
+    vi.spyOn(business, 'supplierOrders').mockResolvedValue(page([]))
+    renderAt('/supplier-orders', 'Auditor')
+    expect(await screen.findByText(en.noSupplierOrders)).toBeVisible()
+    expect(screen.queryByRole('button', { name: en.createSupplierOrder })).not.toBeInTheDocument()
   })
 })

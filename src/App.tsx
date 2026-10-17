@@ -29,6 +29,9 @@ const DashboardPage = lazy(async () => ({
 const UsersPage = lazy(async () => ({ default: (await import('./pages/UsersPage')).UsersPage }))
 const LogsPage = lazy(async () => ({ default: (await import('./pages/LogsPage')).LogsPage }))
 const ReportPage = lazy(async () => ({ default: (await import('./pages/ReportPage')).ReportPage }))
+const SupplierOrdersPage = lazy(async () => ({
+  default: (await import('./pages/SupplierOrdersPage')).SupplierOrdersPage,
+}))
 
 function Login() {
   const { t } = useTranslation()
@@ -203,6 +206,9 @@ export default function App() {
           <Button component={Link} to="/dashboard">
             {t('dashboard')}
           </Button>
+          <Button component={Link} to="/supplier-orders">
+            {t('supplierOrders')}
+          </Button>
           {user.role === 'Admin' && (
             <>
               <Button component={Link} to="/users">
@@ -245,6 +251,7 @@ export default function App() {
               <Route path="/warehouses/:id/items" element={<ItemsPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/report" element={<ReportPage />} />
+              <Route path="/supplier-orders" element={<SupplierOrdersPage />} />
               {user.role === 'Admin' && (
                 <>
                   <Route path="/users" element={<UsersPage />} />

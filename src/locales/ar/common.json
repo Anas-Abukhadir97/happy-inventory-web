@@ -117,5 +117,16 @@
   "message": "الرسالة",
   "viewDetails": "عرض التفاصيل",
   "logDetails": "تفاصيل السجل",
-  "correlationId": "معرّف الارتباط"
+  "correlationId": "معرّف الارتباط",
+  "supplierOrders": "طلبات الموردين",
+  "supplierOrdersDescription": "جهّز الطلبات وتابع حالة تسجيل الإشعارات محليًا.",
+  "localDeliveryNotice": "التسليم مجرد تسجيل اختباري محلي. لن يتم التواصل مع أي مورد.",
+  "createSupplierOrder": "تجهيز طلب للمورد",
+  "requestedQuantity": "الكمية المطلوبة",
+  "supplierDestination": "وجهة المورد",
+  "deliveryStatus": "حالة التسليم",
+  "noSupplierOrders": "لا توجد طلبات للموردين.",
+  "supplierStatus.Pending": "قيد الانتظار",
+  "supplierStatus.Sent": "سُجّل محليًا",
+  "supplierStatus.Failed": "فشل؛ ستتم إعادة المحاولة"
 }
