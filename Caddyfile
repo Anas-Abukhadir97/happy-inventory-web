@@ -1,0 +1,17 @@
+https://localhost:8443 {
+    tls internal
+    encode zstd gzip
+
+    @web_health path /health/web
+    respond @web_health 204
+
+    handle /api/* {
+        reverse_proxy api:8080
+    }
+
+    handle {
+        root * /srv
+        try_files {path} /index.html
+        file_server
+    }
+}
