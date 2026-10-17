@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { lazy, Suspense, useState, type FormEvent } from 'react'
 import {
   Alert,
   Box,
@@ -18,6 +18,17 @@ import { useTranslation } from 'react-i18next'
 import { Link, Route, Routes } from 'react-router-dom'
 import { useSession } from './app/SessionContext'
 import { AuthError } from './lib/auth/session'
+
+const WarehousesPage = lazy(async () => ({
+  default: (await import('./pages/WarehousesPage')).WarehousesPage,
+}))
+const ItemsPage = lazy(async () => ({ default: (await import('./pages/ItemsPage')).ItemsPage }))
+const DashboardPage = lazy(async () => ({
+  default: (await import('./pages/DashboardPage')).DashboardPage,
+}))
+const UsersPage = lazy(async () => ({ default: (await import('./pages/UsersPage')).UsersPage }))
+const LogsPage = lazy(async () => ({ default: (await import('./pages/LogsPage')).LogsPage }))
+const ReportPage = lazy(async () => ({ default: (await import('./pages/ReportPage')).ReportPage }))
 
 function Login() {
   const { t } = useTranslation()
@@ -107,23 +118,27 @@ function Welcome() {
           {t('dashboard')}
         </Button>
         {user?.role === 'Admin' && (
-          <Button component={Link} to="/users" variant="outlined">
-            {t('users')}
-          </Button>
+          <>
+            <Button component={Link} to="/users" variant="outlined">
+              {t('users')}
+            </Button>
+            <Button component={Link} to="/logs" variant="outlined">
+              {t('logs')}
+            </Button>
+          </>
         )}
       </Stack>
     </Box>
   )
 }
 
-function PlannedPage({ title }: { title: string }) {
+function NotFoundPage() {
   const { t } = useTranslation()
   return (
     <Box sx={{ py: 6 }}>
       <Typography component="h1" variant="h4" sx={{ mb: 2 }}>
-        {title}
+        {t('notFound')}
       </Typography>
-      <Typography color="text.secondary">{t('featurePlanned')}</Typography>
       <Button component={Link} to="/" sx={{ mt: 3 }}>
         {t('home')}
       </Button>
@@ -171,6 +186,35 @@ export default function App() {
           </FormControl>
         </Stack>
       </Stack>
+      {user && (
+        <Stack
+          component="nav"
+          direction="row"
+          spacing={1}
+          sx={{ mt: 2, flexWrap: 'wrap' }}
+          aria-label={t('mainNavigation')}
+        >
+          <Button component={Link} to="/">
+            {t('home')}
+          </Button>
+          <Button component={Link} to="/warehouses">
+            {t('warehouses')}
+          </Button>
+          <Button component={Link} to="/dashboard">
+            {t('dashboard')}
+          </Button>
+          {user.role === 'Admin' && (
+            <>
+              <Button component={Link} to="/users">
+                {t('users')}
+              </Button>
+              <Button component={Link} to="/logs">
+                {t('logs')}
+              </Button>
+            </>
+          )}
+        </Stack>
+      )}
       <Box component="main">
         {logoutError && (
           <Alert severity="error" role="alert" sx={{ mt: 3 }}>
@@ -188,15 +232,28 @@ export default function App() {
         ) : !user ? (
           <Login />
         ) : (
-          <Routes>
-            <Route path="/" element={<Welcome />} />
-            <Route path="/warehouses" element={<PlannedPage title={t('warehouses')} />} />
-            <Route path="/dashboard" element={<PlannedPage title={t('dashboard')} />} />
-            {user.role === 'Admin' && (
-              <Route path="/users" element={<PlannedPage title={t('users')} />} />
-            )}
-            <Route path="*" element={<PlannedPage title={t('notFound')} />} />
-          </Routes>
+          <Suspense
+            fallback={
+              <Box role="status" aria-label={t('loadingData')} sx={{ display: 'flex', py: 5 }}>
+                <CircularProgress />
+              </Box>
+            }
+          >
+            <Routes>
+              <Route path="/" element={<Welcome />} />
+              <Route path="/warehouses" element={<WarehousesPage />} />
+              <Route path="/warehouses/:id/items" element={<ItemsPage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/report" element={<ReportPage />} />
+              {user.role === 'Admin' && (
+                <>
+                  <Route path="/users" element={<UsersPage />} />
+                  <Route path="/logs" element={<LogsPage />} />
+                </>
+              )}
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </Suspense>
         )}
       </Box>
     </Container>
