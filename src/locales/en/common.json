@@ -16,5 +16,10 @@
   "usersDescription": "Control team access with clear roles and secure sessions.",
   "note": "This preview does not connect to a live inventory service yet.",
   "notFound": "This page could not be found.",
-  "home": "Return to the overview"
+  "home": "Return to the overview",
+  "country.jo": "Jordan",
+  "country.us": "United States",
+  "country.gb": "United Kingdom",
+  "country.ae": "United Arab Emirates",
+  "country.sa": "Saudi Arabia"
 }
