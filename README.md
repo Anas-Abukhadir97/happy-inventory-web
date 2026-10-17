@@ -21,6 +21,10 @@ The production web Dockerfile builds pinned Node dependencies and serves the sta
 
 Web CI builds the container independently. After the checks pass on `main`, the workflow publishes a commit-tagged image to GHCR and uploads its immutable digest. The API repository records tested API/web digest pairs. Azure hosting remains Phase 8.
 
+## Reviewer walkthrough
+
+The [Phase 7 reviewer notes](docs/phase-7.md) include English/Arabic report screenshots, a clean-checkout command sequence, role behavior and known limits. The [API reviewer guide](https://github.com/Anas-Abukhadir97/happy-inventory-api/blob/main/docs/reviewer-guide.md) covers both repositories, API examples and source archives. Public reviewer links need no invitation.
+
 ## Verify
 
 ```sh
