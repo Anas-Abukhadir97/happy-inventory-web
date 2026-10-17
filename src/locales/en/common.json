@@ -21,5 +21,21 @@
   "country.us": "United States",
   "country.gb": "United Kingdom",
   "country.ae": "United Arab Emirates",
-  "country.sa": "Saudi Arabia"
+  "country.sa": "Saudi Arabia",
+  "signIn": "Sign in",
+  "signInDescription": "Use your Happy Inventory account to continue.",
+  "signingIn": "Signing in…",
+  "signOut": "Sign out",
+  "email": "Email address",
+  "password": "Password",
+  "loginError": "Invalid email or password. Please try again.",
+  "loginDisabled": "This account is disabled. Contact support.",
+  "loginRateLimited": "Too many sign-in attempts. Try again shortly.",
+  "loginCsrfError": "The session security check failed. Reload the page and try again.",
+  "loginUnavailable": "Sign-in is unavailable. Check your connection and try again.",
+  "loadingSession": "Checking your session",
+  "welcome": "Welcome, {{name}}",
+  "welcomeDescription": "Choose a section to continue.",
+  "featurePlanned": "This section is planned for the next phase.",
+  "signOutError": "Could not sign out. Check your connection and try again."
 }

@@ -1,0 +1,7 @@
+# Phase 3 browser authentication
+
+The web app shows login to a new visitor and restores an existing browser session through the API refresh endpoint. It displays a localized welcome page and role-aware links after login, with Arabic RTL and localized errors. Access tokens stay in memory; the API owns the Secure HttpOnly refresh cookie. CSRF is bootstrapped before each cookie-authenticated POST. Web Locks serialize refresh across tabs when available, and a failed rotation clears access state. The client refreshes and retries a failed GET once; writes with uncertain outcomes are not replayed. Sign-out only clears the UI after the server confirms revocation.
+
+Warehouse, dashboard and user-management pages remain honest placeholders for Phase 4. Their authorization will be enforced in the API, not only by hidden links. The local Vite server uses HTTPS and proxies `/api` to the backend. Production hosting requires the same browser/API origin and trusted TLS at the API boundary.
+
+Local verification on 17 October 2026: clean `npm ci` (zero reported vulnerabilities), contract checksum/regeneration, ESLint, TypeScript, Prettier, nine tests, and production build passed. Measured covered application files: 89.4% statements and 75% branches. Vite reported a nonblocking preview bundle-size advisory. A live HTTPS proxy smoke test covered CSRF, login, `/auth/me`, refresh and logout against the running API. Hosted CI evidence is on the Phase 3 PR.
