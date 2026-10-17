@@ -7,6 +7,7 @@ import { CssBaseline, ThemeProvider, createTheme } from '@mui/material'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import '../lib/i18n'
+import { SessionProvider } from './SessionProvider'
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
@@ -44,7 +45,9 @@ export function AppProviders({ children }: PropsWithChildren) {
     <CacheProvider value={cache}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        <QueryClientProvider client={queryClient}>
+          <SessionProvider>{children}</SessionProvider>
+        </QueryClientProvider>
       </ThemeProvider>
     </CacheProvider>
   )

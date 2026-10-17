@@ -1,14 +1,53 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import App from '../App'
 import { AppProviders } from '../app/AppProviders'
+import { clearSession } from '../lib/auth/session'
 import i18n from '../lib/i18n'
 import en from '../locales/en/common.json'
 import ar from '../locales/ar/common.json'
 
+const admin = { id: 1, email: 'admin@example.com', fullName: 'Anas', role: 'Admin' }
+const auditor = { ...admin, role: 'Auditor' }
+
+function mockAuth({ restored = false, disabled = false, role = 'Admin' } = {}) {
+  const user = role === 'Auditor' ? auditor : admin
+  let refreshCount = 0
+  const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+    const url = typeof input === 'string' ? input : input.toString()
+    if (url.endsWith('/csrf'))
+      return new Response(null, { status: 204, headers: { 'X-CSRF-Token': 'test-csrf' } })
+    if (url.endsWith('/refresh')) {
+      refreshCount++
+      return restored && refreshCount === 1
+        ? Response.json({
+            accessToken: 'restored-token',
+            tokenType: 'Bearer',
+            expiresAtUtc: new Date().toISOString(),
+            user,
+          })
+        : Response.json({ code: 'invalid_session' }, { status: 401 })
+    }
+    if (url.endsWith('/login'))
+      return disabled
+        ? Response.json({ code: 'account_disabled' }, { status: 403 })
+        : Response.json({
+            accessToken: 'login-token',
+            tokenType: 'Bearer',
+            expiresAtUtc: new Date().toISOString(),
+            user,
+          })
+    if (url.endsWith('/logout')) return new Response(null, { status: 204 })
+    throw new Error(`Unexpected request: ${url}`)
+  })
+  vi.stubGlobal('fetch', fetchMock)
+  return fetchMock
+}
+
 beforeEach(async () => {
+  clearSession()
   await i18n.changeLanguage('en')
 })
 
@@ -22,29 +61,58 @@ function renderApp(path = '/') {
   )
 }
 
-describe('foundation', () => {
-  it('labels future functionality honestly', () => {
+describe('Phase 3 session UI', () => {
+  it('shows login first and enters the welcome page after sign-in', async () => {
+    const fetchMock = mockAuth()
     renderApp()
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(en.heading)
-    expect(screen.getAllByText(en.planned)).toHaveLength(3)
-    expect(screen.getByText(en.note)).toBeVisible()
+    expect(await screen.findByRole('heading', { name: en.signIn })).toBeVisible()
+    const user = userEvent.setup()
+    await user.type(screen.getByRole('textbox', { name: en.email }), 'admin@example.com')
+    await user.type(screen.getByLabelText(/Password/), 'correct-password')
+    await user.click(screen.getByRole('button', { name: en.signIn }))
+    expect(await screen.findByRole('heading', { name: 'Welcome, Anas' })).toBeVisible()
+    expect(screen.getByRole('link', { name: en.users })).toBeVisible()
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/auth/login',
+      expect.objectContaining({ method: 'POST' }),
+    )
   })
 
-  it('switches to Arabic resources and right-to-left layout', async () => {
+  it('restores a session on reload and hides Admin navigation from Auditor', async () => {
+    mockAuth({ restored: true, role: 'Auditor' })
     renderApp()
+    expect(await screen.findByRole('heading', { name: 'Welcome, Anas' })).toBeVisible()
+    expect(screen.queryByRole('link', { name: en.users })).not.toBeInTheDocument()
+  })
+
+  it('shows the localized disabled-account message', async () => {
+    mockAuth({ disabled: true })
+    renderApp()
+    const user = userEvent.setup()
+    await user.type(await screen.findByRole('textbox', { name: en.email }), 'disabled@example.com')
+    await user.type(screen.getByLabelText(/Password/), 'correct-password')
+    await user.click(screen.getByRole('button', { name: en.signIn }))
+    expect(await screen.findByRole('alert')).toHaveTextContent(en.loginDisabled)
+  })
+
+  it('switches login to Arabic and right-to-left layout', async () => {
+    mockAuth()
+    renderApp()
+    await screen.findByRole('heading', { name: en.signIn })
     const user = userEvent.setup()
     await user.click(screen.getByRole('combobox', { name: en.language }))
     await user.click(screen.getByRole('option', { name: en.arabic }))
     await waitFor(() => expect(document.documentElement).toHaveAttribute('dir', 'rtl'))
     expect(document.documentElement).toHaveAttribute('lang', 'ar')
-    expect(document.title).toBe(ar.appName)
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(ar.heading)
+    expect(screen.getByRole('heading', { name: ar.signIn })).toBeVisible()
   })
 
-  it('lets a visitor recover from an unknown route', async () => {
-    renderApp('/missing')
-    await userEvent.setup().click(screen.getByRole('link', { name: en.home }))
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(en.heading)
+  it('signs out and returns to login', async () => {
+    mockAuth({ restored: true })
+    renderApp()
+    await screen.findByRole('heading', { name: 'Welcome, Anas' })
+    await userEvent.setup().click(screen.getByRole('button', { name: en.signOut }))
+    expect(await screen.findByRole('heading', { name: en.signIn })).toBeVisible()
   })
 
   it('has complete nonempty translations', () => {
