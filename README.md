@@ -4,7 +4,7 @@ React + TypeScript + Vite foundations. Personal owner: [Anas-Abukhadir97](https:
 
 ## Status and setup
 
-Phase 4A adds a localized supplier-order page with manual preparation and local delivery status, alongside warehouse/item/user CRUD, dashboards, an Admin-only log viewer and a full-data print report. Auditor sees read-only inventory and supplier requests; Admin and Management can write. The API must run for all pages. Browser access tokens remain in memory with the Phase 3 session flow. The web repository pins the API-owned contract by checksum. eCommerce deductions are exposed to authenticated external clients through the API.
+Phase 5 adds repeatable integrated browser/API verification and keeps the selected English/Arabic language across reloads. The localized supplier-order page supports manual preparation and local delivery status, alongside warehouse/item/user CRUD, dashboards, an Admin-only log viewer and a full-data print report. Auditor sees read-only inventory and supplier requests; Admin and Management can write. The API must run for normal use. Browser access tokens remain in memory with the Phase 3 session flow. The web repository pins the API-owned contract by checksum. eCommerce deductions are exposed to authenticated external clients through the API.
 
 Use Node 24.14.1 (see .node-version/.nvmrc):
 
@@ -24,7 +24,10 @@ npm run typecheck
 npm run format:check
 npm run test:coverage
 npm run build
+npm run test:e2e
 ```
+
+For `test:e2e`, first build the sibling API in Release (`dotnet build HappyInventory.sln -c Release` from `backend/`) and leave ports 5080 and 5173 free. The script starts both services against a fresh temporary SQLite database, uses local Chrome in headless mode, and writes ignored English/Arabic print artifacts under `artifacts/phase5/`. It stops the services and removes its temporary database afterward. Hosted CI installs Chromium and runs the same test.
 
 Tests verify login-first rendering, session restore, roles, Arabic RTL/resource parity, warehouse list and create UI, supplier-order preparation, complete report pagination and print invocation, guarded business transport with ETags, GET refresh/retry and no automatic mutation replay. CI runs these independently. Access tokens are held only in memory; Secure HttpOnly refresh cookies are owned by the API. A non-secret sessionStorage flag prevents silent restoration after an uncertain refresh failure. [Contract notes](docs/contracts/README.md) explain the snapshot and regeneration workflow.
 
@@ -32,7 +35,7 @@ Tests verify login-first rendering, session restore, roles, Arabic RTL/resource 
 
 All user-facing text lives in src/locales/en/common.json and src/locales/ar/common.json. Add/reuse keys in both, including errors and aria labels. Role IDs and backend-owned messages are unchanged. Document language/direction, theme direction and Emotion RTL transformation update together.
 
-Warehouse, item, user, dashboard, log, supplier-order and print screens are implemented. The print report loads every warehouse and item page rather than printing only the visible ten rows. See [decisions](docs/decisions.md), [Phase 4A evidence](docs/phase-4a.md), and the API's [canonical requirements](https://github.com/Anas-Abukhadir97/happy-inventory-api/blob/main/docs/requirements.md). Browser print-preview and integrated accessibility checks continue in Phase 5.
+Warehouse, item, user, dashboard, log, supplier-order and print screens are implemented. The print report loads every warehouse and item page rather than printing only the visible ten rows. See [decisions](docs/decisions.md), [Phase 5 evidence](docs/phase-5.md), and the API's [canonical requirements](https://github.com/Anas-Abukhadir97/happy-inventory-api/blob/main/docs/requirements.md). Browser print output and automated accessibility checks passed in Phase 5; manual assistive-technology review remains a broader release activity.
 
 ## Future features and license
 

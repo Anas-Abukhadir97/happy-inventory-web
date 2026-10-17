@@ -8,7 +8,7 @@ if (actualHash !== expectedHash) {
   throw new Error('Pinned API contract checksum does not match the snapshot')
 }
 const contract = JSON.parse(document.toString('utf8'))
-if (contract.info.version !== '0.2.0-draft') {
+if (contract.info.version !== '0.2.1-draft') {
   throw new Error('Unexpected API contract version')
 }
 console.log(`API contract ${contract.info.version}: checksum verified`)
