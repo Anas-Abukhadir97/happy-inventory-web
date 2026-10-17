@@ -117,5 +117,16 @@
   "message": "Message",
   "viewDetails": "View details",
   "logDetails": "Log details",
-  "correlationId": "Correlation ID"
+  "correlationId": "Correlation ID",
+  "supplierOrders": "Supplier orders",
+  "supplierOrdersDescription": "Prepare requests and track local notification delivery.",
+  "localDeliveryNotice": "Delivery is local test recording only. No supplier is contacted.",
+  "createSupplierOrder": "Prepare supplier request",
+  "requestedQuantity": "Requested quantity",
+  "supplierDestination": "Supplier destination",
+  "deliveryStatus": "Delivery status",
+  "noSupplierOrders": "No supplier requests found.",
+  "supplierStatus.Pending": "Pending",
+  "supplierStatus.Sent": "Recorded locally",
+  "supplierStatus.Failed": "Failed; retry scheduled"
 }
