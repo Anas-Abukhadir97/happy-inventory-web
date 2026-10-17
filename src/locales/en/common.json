@@ -1,0 +1,20 @@
+{
+  "appName": "Happy Inventory",
+  "language": "Language",
+  "english": "English",
+  "arabic": "العربية",
+  "eyebrow": "PROJECT FOUNDATIONS",
+  "heading": "A clear view of your inventory.",
+  "description": "The project foundation is ready. Inventory management and secure sign-in will arrive in the next implementation phases.",
+  "phase": "Phase 1 · Foundations",
+  "planned": "Planned",
+  "warehouses": "Warehouses",
+  "warehousesDescription": "Manage locations and the inventory stored in each warehouse.",
+  "dashboard": "Dashboard",
+  "dashboardDescription": "Understand stock levels and see your highest and lowest quantities.",
+  "users": "Users and access",
+  "usersDescription": "Control team access with clear roles and secure sessions.",
+  "note": "This preview does not connect to a live inventory service yet.",
+  "notFound": "This page could not be found.",
+  "home": "Return to the overview"
+}
