@@ -35,3 +35,43 @@ jobs:
           path: coverage
           if-no-files-found: warn
           retention-days: 14
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          path: frontend
+          persist-credentials: false
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          repository: Anas-Abukhadir97/happy-inventory-api
+          path: backend
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: frontend/.node-version
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          global-json-file: backend/global.json
+          cache: true
+          cache-dependency-path: backend/**/packages.lock.json
+      - run: npm ci
+        working-directory: frontend
+      - run: dotnet restore HappyInventory.sln --locked-mode
+        working-directory: backend
+      - run: dotnet build HappyInventory.sln -c Release --no-restore
+        working-directory: backend
+      - run: npx playwright install --with-deps chromium
+        working-directory: frontend
+      - run: npm run test:e2e
+        working-directory: frontend
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: phase5-print-artifacts
+          path: frontend/artifacts/phase5
+          if-no-files-found: warn
+          retention-days: 14

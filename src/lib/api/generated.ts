@@ -173,6 +173,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Atomically deduct one item while retaining at least one in stock. A caller/key replay with the same payload returns the stored result and replayed=true; a changed payload returns 409 idempotency_conflict. Successful keys are retained with inventory history without expiry. */
         post: operations["deductInventory"];
         delete?: never;
         options?: never;
@@ -237,6 +238,7 @@ export interface paths {
         };
         get: operations["listSupplierOrders"];
         put?: never;
+        /** @description Manually prepare a supplier request and its outbox message in one transaction. Pending/Sent/Failed refer to the local test adapter only; no supplier is contacted. */
         post: operations["createSupplierOrder"];
         delete?: never;
         options?: never;
@@ -1041,6 +1043,7 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
+                /** @description Printable ASCII (1-128 characters); unique per authenticated caller. Reuse for uncertain retries. */
                 "Idempotency-Key": string;
             };
             path?: never;
@@ -1048,6 +1051,14 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "externalReference": "order-42-line-1",
+                 *       "itemId": 2,
+                 *       "quantity": 2,
+                 *       "warehouseId": 1
+                 *     }
+                 */
                 "application/json": components["schemas"]["DeductionRequest"];
             };
         };
@@ -1097,7 +1108,7 @@ export interface operations {
                     "application/problem+json": components["schemas"]["Problem"];
                 };
             };
-            /** @description Conflict */
+            /** @description idempotency_conflict or insufficient_stock */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -1308,6 +1319,14 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "itemId": 2,
+                 *       "requestedQuantity": 10,
+                 *       "supplierDestination": "supplier@example.test",
+                 *       "warehouseId": 1
+                 *     }
+                 */
                 "application/json": components["schemas"]["SupplierOrderCreate"];
             };
         };
@@ -1319,6 +1338,17 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "createdAtUtc": "2026-10-17T12:00:00Z",
+                     *       "id": "5b77fe83-5295-4794-a07a-a0e30a9a7629",
+                     *       "itemId": 2,
+                     *       "requestedQuantity": 10,
+                     *       "status": "Pending",
+                     *       "supplierDestination": "supplier@example.test",
+                     *       "warehouseId": 1
+                     *     }
+                     */
                     "application/json": components["schemas"]["SupplierOrder"];
                 };
             };

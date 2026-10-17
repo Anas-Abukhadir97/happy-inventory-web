@@ -21,4 +21,5 @@ happy-inventory-strategy.md
 node_modules/
 dist/
 coverage/
+artifacts/
 *.local
