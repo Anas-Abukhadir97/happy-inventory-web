@@ -2,3 +2,5 @@ node_modules
 dist
 coverage
 package-lock.json
+docs/contracts/openapi.v1.json
+src/lib/api/generated.ts
