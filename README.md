@@ -4,7 +4,7 @@ React + TypeScript + Vite foundations. Personal owner: [Anas-Abukhadir97](https:
 
 ## Status and setup
 
-Phase 3 adds a localized login screen, in-memory access token, session restore, sign-out, role-aware welcome navigation and a guarded typed API client. The API must run for login and refresh. Inventory, dashboard and user-management screens remain **planned for Phase 4** and are labelled as such. The web repository still pins the API-owned draft contract by checksum.
+Phase 4 adds localized warehouse/item/user CRUD, dashboards, an Admin-only log viewer and a full-data print report. Auditor sees read-only inventory; Admin and Management can write inventory. The API must run for all pages. Browser access tokens remain in memory with the Phase 3 session flow. The web repository pins the API-owned draft contract by checksum; eCommerce and supplier integrations remain Phase 4A.
 
 Use Node 24.14.1 (see .node-version/.nvmrc):
 
@@ -26,13 +26,13 @@ npm run test:coverage
 npm run build
 ```
 
-Tests verify login-first rendering, successful/disabled login, session restore, role-aware navigation, sign-out, Arabic RTL, resource parity, GET refresh/retry and no automatic mutation replay. CI runs these independently. Access tokens are held only in memory; Secure HttpOnly refresh cookies are owned by the API. A non-secret sessionStorage flag prevents silent restoration after an uncertain refresh failure. [Contract notes](docs/contracts/README.md) explain the snapshot and regeneration workflow. Inventory operations are not invoked until their endpoints exist.
+Tests verify login-first rendering, session restore, roles, Arabic RTL/resource parity, warehouse list and create UI, guarded business transport with ETags, GET refresh/retry and no automatic mutation replay. CI runs these independently. Access tokens are held only in memory; Secure HttpOnly refresh cookies are owned by the API. A non-secret sessionStorage flag prevents silent restoration after an uncertain refresh failure. [Contract notes](docs/contracts/README.md) explain the snapshot and regeneration workflow.
 
 ## Localization and roadmap
 
 All user-facing text lives in src/locales/en/common.json and src/locales/ar/common.json. Add/reuse keys in both, including errors and aria labels. Role IDs and backend-owned messages are unchanged. Document language/direction, theme direction and Emotion RTL transformation update together.
 
-Current planned scope: warehouses/items/users, dashboard, log viewer, full print view and integration screens. See [decisions](docs/decisions.md), [Phase 3 evidence](docs/phase-3.md), and the API's [canonical requirements](https://github.com/Anas-Abukhadir97/happy-inventory-api/blob/main/docs/requirements.md).
+Warehouse, item, user, dashboard, log and print screens are implemented. The print report loads every warehouse and item page rather than printing only the visible ten rows. See [decisions](docs/decisions.md), [Phase 4 evidence](docs/phase-4.md), and the API's [canonical requirements](https://github.com/Anas-Abukhadir97/happy-inventory-api/blob/main/docs/requirements.md). Browser print-preview and integrated accessibility checks continue in Phase 5.
 
 ## Future features and license
 

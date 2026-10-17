@@ -16,7 +16,7 @@ function mockAuth({ restored = false, disabled = false, role = 'Admin' } = {}) {
   const user = role === 'Auditor' ? auditor : admin
   let refreshCount = 0
   const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
-    const url = typeof input === 'string' ? input : input.toString()
+    const url = input instanceof Request ? input.url : input.toString()
     if (url.endsWith('/csrf'))
       return new Response(null, { status: 204, headers: { 'X-CSRF-Token': 'test-csrf' } })
     if (url.endsWith('/refresh')) {
@@ -40,6 +40,41 @@ function mockAuth({ restored = false, disabled = false, role = 'Admin' } = {}) {
             user,
           })
     if (url.endsWith('/logout')) return new Response(null, { status: 204 })
+    if (url.endsWith('/api/v1/warehouses') && input instanceof Request && input.method === 'POST')
+      return Response.json(
+        {
+          id: 8,
+          name: 'South Depot',
+          address: 'Street',
+          city: 'Amman',
+          countryCode: 'JO',
+          version: 'bb6dca14-b1ce-4aa3-918e-4b43ac96241f',
+          createdAtUtc: new Date().toISOString(),
+          updatedAtUtc: new Date().toISOString(),
+        },
+        { status: 201 },
+      )
+    if (url.includes('/api/v1/warehouses?'))
+      return Response.json({
+        items: [
+          {
+            id: 7,
+            name: 'North Depot',
+            address: 'Street',
+            city: 'Amman',
+            countryCode: 'JO',
+            version: 'bb6dca14-b1ce-4aa3-918e-4b43ac96241f',
+            createdAtUtc: new Date().toISOString(),
+            updatedAtUtc: new Date().toISOString(),
+          },
+        ],
+        page: 1,
+        pageSize: 10,
+        totalCount: '1',
+        totalPages: '1',
+      })
+    if (url.endsWith('/api/v1/countries'))
+      return Response.json([{ code: 'JO', nameKey: 'country.jo' }])
     throw new Error(`Unexpected request: ${url}`)
   })
   vi.stubGlobal('fetch', fetchMock)
@@ -71,7 +106,7 @@ describe('Phase 3 session UI', () => {
     await user.type(screen.getByLabelText(/Password/), 'correct-password')
     await user.click(screen.getByRole('button', { name: en.signIn }))
     expect(await screen.findByRole('heading', { name: 'Welcome, Anas' })).toBeVisible()
-    expect(screen.getByRole('link', { name: en.users })).toBeVisible()
+    expect(screen.getAllByRole('link', { name: en.users })[0]).toBeVisible()
     expect(fetchMock).toHaveBeenCalledWith(
       '/api/v1/auth/login',
       expect.objectContaining({ method: 'POST' }),
@@ -83,6 +118,34 @@ describe('Phase 3 session UI', () => {
     renderApp()
     expect(await screen.findByRole('heading', { name: 'Welcome, Anas' })).toBeVisible()
     expect(screen.queryByRole('link', { name: en.users })).not.toBeInTheDocument()
+  })
+
+  it('shows the live warehouse list to Auditor without write controls', async () => {
+    mockAuth({ restored: true, role: 'Auditor' })
+    renderApp('/warehouses')
+    expect(await screen.findByRole('link', { name: 'North Depot' })).toBeVisible()
+    expect(screen.queryByRole('button', { name: en.addWarehouse })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: en.delete })).not.toBeInTheDocument()
+  })
+
+  it('lets Admin submit a warehouse using localized form labels', async () => {
+    const fetchMock = mockAuth({ restored: true })
+    renderApp('/warehouses')
+    await screen.findByRole('link', { name: 'North Depot' })
+    const user = userEvent.setup()
+    await user.click(screen.getByRole('button', { name: en.addWarehouse }))
+    await user.type(screen.getByRole('textbox', { name: en.warehouseName }), 'South Depot')
+    await user.type(screen.getByRole('textbox', { name: en.address }), 'Street')
+    await user.type(screen.getByRole('textbox', { name: en.city }), 'Amman')
+    await user.click(screen.getByRole('button', { name: en.save }))
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(expect.any(Request)))
+    const posted = fetchMock.mock.calls.some(
+      ([input]) =>
+        input instanceof Request &&
+        input.url.endsWith('/api/v1/warehouses') &&
+        input.method === 'POST',
+    )
+    expect(posted).toBe(true)
   })
 
   it('shows the localized disabled-account message', async () => {
