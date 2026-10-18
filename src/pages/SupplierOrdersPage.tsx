@@ -5,7 +5,6 @@ import {
   Button,
   MenuItem,
   Stack,
-  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -17,7 +16,7 @@ import { useTranslation } from 'react-i18next'
 import { useSession } from '../app/SessionContext'
 import { business, type Item, type Warehouse } from '../lib/api/business'
 import { errorText } from '../lib/api/errors'
-import { LoadError, Loading, PageControls, PageHeading } from './Shared'
+import { LoadError, Loading, PageControls, PageHeading, ResponsiveTable } from './Shared'
 
 async function everyPage<T>(load: (page: number) => Promise<{ items: T[]; totalPages: string }>) {
   const first = await load(1)
@@ -165,7 +164,7 @@ export function SupplierOrdersPage() {
         <Typography>{t('noSupplierOrders')}</Typography>
       ) : (
         <>
-          <Table size="small">
+          <ResponsiveTable size="small">
             <TableHead>
               <TableRow>
                 <TableCell>{t('time')}</TableCell>
@@ -190,7 +189,7 @@ export function SupplierOrdersPage() {
                 </TableRow>
               ))}
             </TableBody>
-          </Table>
+          </ResponsiveTable>
           <PageControls page={page} totalPages={orders.data.totalPages} change={setPage} />
         </>
       )}

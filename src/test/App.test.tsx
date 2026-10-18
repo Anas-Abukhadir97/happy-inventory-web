@@ -107,6 +107,8 @@ describe('Phase 3 session UI', () => {
     await user.click(screen.getByRole('button', { name: en.signIn }))
     expect(await screen.findByRole('heading', { name: 'Welcome, Anas' })).toBeVisible()
     expect(screen.getAllByRole('link', { name: en.users })[0]).toBeVisible()
+    expect(screen.getByRole('link', { name: en.overview })).toHaveAttribute('aria-current', 'page')
+    expect(screen.getAllByRole('link', { name: en.supplierOrders }).length).toBeGreaterThan(0)
     expect(fetchMock).toHaveBeenCalledWith(
       '/api/v1/auth/login',
       expect.objectContaining({ method: 'POST' }),
@@ -118,12 +120,21 @@ describe('Phase 3 session UI', () => {
     renderApp()
     expect(await screen.findByRole('heading', { name: 'Welcome, Anas' })).toBeVisible()
     expect(screen.queryByRole('link', { name: en.users })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: en.logs })).not.toBeInTheDocument()
   })
 
   it('shows the live warehouse list to Auditor without write controls', async () => {
     mockAuth({ restored: true, role: 'Auditor' })
     renderApp('/warehouses')
     expect(await screen.findByRole('link', { name: 'North Depot' })).toBeVisible()
+    expect(screen.getByRole('link', { name: en.warehouses })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
+    expect(screen.getByRole('region', { name: en.scrollableTable })).toHaveAttribute(
+      'tabindex',
+      '0',
+    )
     expect(screen.queryByRole('button', { name: en.addWarehouse })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: en.delete })).not.toBeInTheDocument()
   })

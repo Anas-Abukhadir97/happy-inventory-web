@@ -8,7 +8,6 @@ import {
   DialogContent,
   DialogTitle,
   Stack,
-  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -20,7 +19,14 @@ import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useSession } from '../app/SessionContext'
 import { business, type Item, type ItemWrite } from '../lib/api/business'
-import { LoadError, Loading, PageControls, PageHeading, SearchForm } from './Shared'
+import {
+  LoadError,
+  Loading,
+  PageControls,
+  PageHeading,
+  SearchForm,
+  ResponsiveTable,
+} from './Shared'
 import { errorText } from '../lib/api/errors'
 
 type ItemForm = { name: string; sku: string; qty: string; costPrice: string; msrpPrice: string }
@@ -148,7 +154,7 @@ export function ItemsPage() {
           {query.data.items.length === 0 ? (
             <Typography>{t('noItems')}</Typography>
           ) : (
-            <Table>
+            <ResponsiveTable>
               <TableHead>
                 <TableRow>
                   <TableCell>{t('itemName')}</TableCell>
@@ -180,7 +186,7 @@ export function ItemsPage() {
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>
+            </ResponsiveTable>
           )}
           <PageControls page={page} totalPages={query.data.totalPages} change={setPage} />
         </>

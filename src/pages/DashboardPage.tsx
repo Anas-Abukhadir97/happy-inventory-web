@@ -1,19 +1,10 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import {
-  Button,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Typography,
-} from '@mui/material'
+import { Button, Stack, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { business, type ItemQuantity } from '../lib/api/business'
-import { LoadError, Loading, PageControls, PageHeading } from './Shared'
+import { LoadError, Loading, PageControls, PageHeading, ResponsiveTable } from './Shared'
 
 function QuantityTable({ title, rows }: { title: string; rows: ItemQuantity[] }) {
   const { t } = useTranslation()
@@ -25,7 +16,7 @@ function QuantityTable({ title, rows }: { title: string; rows: ItemQuantity[] })
       {rows.length === 0 ? (
         <Typography>{t('noItems')}</Typography>
       ) : (
-        <Table>
+        <ResponsiveTable>
           <TableHead>
             <TableRow>
               <TableCell>{t('itemName')}</TableCell>
@@ -42,7 +33,7 @@ function QuantityTable({ title, rows }: { title: string; rows: ItemQuantity[] })
               </TableRow>
             ))}
           </TableBody>
-        </Table>
+        </ResponsiveTable>
       )}
     </>
   )
@@ -75,7 +66,7 @@ export function DashboardPage() {
           {warehouses.data.items.length === 0 ? (
             <Typography>{t('noWarehouses')}</Typography>
           ) : (
-            <Table>
+            <ResponsiveTable>
               <TableHead>
                 <TableRow>
                   <TableCell>{t('warehouseName')}</TableCell>
@@ -92,7 +83,7 @@ export function DashboardPage() {
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>
+            </ResponsiveTable>
           )}
           <PageControls page={page} totalPages={warehouses.data.totalPages} change={setPage} />
         </>

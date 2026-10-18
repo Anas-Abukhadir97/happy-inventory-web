@@ -14,7 +14,6 @@ import {
   MenuItem,
   Select,
   Stack,
-  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -24,7 +23,14 @@ import {
 } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { business, type User, type UserCreate, type UserUpdate } from '../lib/api/business'
-import { LoadError, Loading, PageControls, PageHeading, SearchForm } from './Shared'
+import {
+  LoadError,
+  Loading,
+  PageControls,
+  PageHeading,
+  SearchForm,
+  ResponsiveTable,
+} from './Shared'
 import { errorText } from '../lib/api/errors'
 
 type UserForm = {
@@ -164,7 +170,7 @@ export function UsersPage() {
           {query.data.items.length === 0 ? (
             <Typography>{t('noUsers')}</Typography>
           ) : (
-            <Table>
+            <ResponsiveTable>
               <TableHead>
                 <TableRow>
                   <TableCell>{t('fullName')}</TableCell>
@@ -202,7 +208,7 @@ export function UsersPage() {
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>
+            </ResponsiveTable>
           )}
           <PageControls page={page} totalPages={query.data.totalPages} change={setPage} />
         </>

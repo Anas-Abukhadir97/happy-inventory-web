@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
-import { Button, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material'
+import { Button, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { business, type Item, type WarehouseStatus } from '../lib/api/business'
-import { LoadError, Loading, PageHeading } from './Shared'
+import { LoadError, Loading, PageHeading, ResponsiveTable } from './Shared'
 
 type ReportWarehouse = { status: WarehouseStatus; items: Item[] }
 
@@ -69,7 +69,7 @@ export function ReportPage() {
             {items.length === 0 ? (
               <Typography>{t('noItems')}</Typography>
             ) : (
-              <Table size="small">
+              <ResponsiveTable size="small">
                 <TableHead>
                   <TableRow>
                     <TableCell>{t('itemName')}</TableCell>
@@ -88,7 +88,7 @@ export function ReportPage() {
                     </TableRow>
                   ))}
                 </TableBody>
-              </Table>
+              </ResponsiveTable>
             )}
           </section>
         ))
