@@ -1,4 +1,15 @@
-import { Alert, Box, Button, CircularProgress, Stack, Typography } from '@mui/material'
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  Stack,
+  Table,
+  TableContainer,
+  TextField,
+  Typography,
+} from '@mui/material'
+import type { PropsWithChildren } from 'react'
 import { useTranslation } from 'react-i18next'
 import { errorText } from '../lib/api/errors'
 
@@ -64,15 +75,40 @@ export function SearchForm({ submit }: { submit: (value: string) => void }) {
         event.preventDefault()
         submit(String(new FormData(event.currentTarget).get('search') ?? ''))
       }}
-      sx={{ display: 'flex', gap: 1, mb: 2 }}
+      sx={{ display: 'flex', gap: 1, mb: 2, alignItems: 'center', flexWrap: 'wrap' }}
     >
-      <label htmlFor="record-search" style={{ alignSelf: 'center' }}>
-        {t('search')}
-      </label>
-      <input id="record-search" name="search" maxLength={200} />
+      <TextField
+        id="record-search"
+        name="search"
+        label={t('search')}
+        size="small"
+        slotProps={{ htmlInput: { maxLength: 200 } }}
+        sx={{ flexGrow: 1, maxWidth: 360, minWidth: 180 }}
+      />
       <Button type="submit" variant="outlined">
         {t('search')}
       </Button>
     </Box>
+  )
+}
+
+export function ResponsiveTable({
+  children,
+  size,
+}: PropsWithChildren<{ size?: 'small' | 'medium' }>) {
+  const { t } = useTranslation()
+  return (
+    <TableContainer
+      role="region"
+      aria-label={t('scrollableTable')}
+      tabIndex={0}
+      sx={{
+        maxWidth: '100%',
+        '@media print': { overflowX: 'visible' },
+        '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main' },
+      }}
+    >
+      <Table size={size}>{children}</Table>
+    </TableContainer>
   )
 }

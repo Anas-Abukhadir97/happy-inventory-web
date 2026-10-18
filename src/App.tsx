@@ -9,13 +9,14 @@ import {
   InputLabel,
   MenuItem,
   Paper,
+  Chip,
   Select,
   Stack,
   TextField,
   Typography,
 } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import { Link, Route, Routes } from 'react-router-dom'
+import { Link, Route, Routes, useLocation } from 'react-router-dom'
 import { useSession } from './app/SessionContext'
 import { AuthError } from './lib/auth/session'
 
@@ -106,31 +107,59 @@ function Welcome() {
   const { t } = useTranslation()
   const { user } = useSession()
   return (
-    <Box sx={{ py: 6 }}>
-      <Typography component="h1" variant="h3" sx={{ mb: 2 }}>
+    <Box sx={{ py: { xs: 4, md: 7 } }}>
+      <Typography
+        component="h1"
+        variant="h3"
+        sx={{ mb: 1, fontWeight: 750, letterSpacing: '-0.035em' }}
+      >
         {t('welcome', { name: user?.fullName })}
       </Typography>
       <Typography color="text.secondary" sx={{ mb: 4 }}>
         {t('welcomeDescription')}
       </Typography>
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-        <Button component={Link} to="/warehouses" variant="outlined">
-          {t('warehouses')}
-        </Button>
-        <Button component={Link} to="/dashboard" variant="outlined">
-          {t('dashboard')}
-        </Button>
-        {user?.role === 'Admin' && (
-          <>
-            <Button component={Link} to="/users" variant="outlined">
-              {t('users')}
+      <Box
+        sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' }, gap: 2 }}
+      >
+        {[
+          { to: '/warehouses', title: t('warehouses'), description: t('warehousesDescription') },
+          { to: '/dashboard', title: t('dashboard'), description: t('dashboardDescription') },
+          {
+            to: '/supplier-orders',
+            title: t('supplierOrders'),
+            description: t('supplierOrdersDescription'),
+          },
+          ...(user?.role === 'Admin'
+            ? [
+                { to: '/users', title: t('users'), description: t('usersDescription') },
+                { to: '/logs', title: t('logs'), description: t('logsDescription') },
+              ]
+            : []),
+        ].map((section) => (
+          <Paper
+            key={section.to}
+            variant="outlined"
+            sx={{
+              p: 3,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 1,
+              minHeight: 166,
+              borderColor: 'divider',
+            }}
+          >
+            <Typography component="h2" variant="h6" sx={{ fontWeight: 700 }}>
+              {section.title}
+            </Typography>
+            <Typography color="text.secondary" sx={{ flexGrow: 1 }}>
+              {section.description}
+            </Typography>
+            <Button component={Link} to={section.to} sx={{ alignSelf: 'flex-start', px: 0 }}>
+              {section.title}
             </Button>
-            <Button component={Link} to="/logs" variant="outlined">
-              {t('logs')}
-            </Button>
-          </>
-        )}
-      </Stack>
+          </Paper>
+        ))}
+      </Box>
     </Box>
   )
 }
@@ -153,17 +182,53 @@ export default function App() {
   const { t, i18n } = useTranslation()
   const { ready, user, logout } = useSession()
   const [logoutError, setLogoutError] = useState(false)
+  const location = useLocation()
+  const sections = user
+    ? [
+        { to: '/', label: t('overview') },
+        { to: '/warehouses', label: t('warehouses') },
+        { to: '/dashboard', label: t('dashboard') },
+        { to: '/supplier-orders', label: t('supplierOrders') },
+        ...(user.role === 'Admin'
+          ? [
+              { to: '/users', label: t('users') },
+              { to: '/logs', label: t('logs') },
+            ]
+          : []),
+      ]
+    : []
   return (
-    <Container maxWidth="lg" sx={{ py: 3 }}>
+    <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 3 }, pb: 7 }}>
       <Stack
         component="header"
-        direction="row"
-        sx={{ justifyContent: 'space-between', alignItems: 'center', gap: 2 }}
+        direction={{ xs: 'column', sm: 'row' }}
+        sx={{
+          justifyContent: 'space-between',
+          alignItems: { xs: 'stretch', sm: 'center' },
+          gap: 2,
+        }}
       >
-        <Typography sx={{ fontWeight: 700 }} variant="h6">
+        <Typography
+          component={Link}
+          to="/"
+          sx={{
+            fontWeight: 800,
+            textDecoration: 'none',
+            color: 'primary.main',
+            letterSpacing: '-0.03em',
+          }}
+          variant="h5"
+        >
           {t('appName')}
         </Typography>
-        <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{ alignItems: 'center', justifyContent: { xs: 'space-between', sm: 'flex-end' } }}
+        >
+          {user && (
+            <Chip label={t(`role.${user.role}`)} size="small" color="primary" variant="outlined" />
+          )}
           {user && (
             <Button
               onClick={() => {
@@ -173,7 +238,7 @@ export default function App() {
               {t('signOut')}
             </Button>
           )}
-          <FormControl size="small" sx={{ minWidth: 140 }}>
+          <FormControl size="small" sx={{ minWidth: { xs: 112, sm: 140 } }}>
             <InputLabel id="language-label">{t('language')}</InputLabel>
             <Select
               labelId="language-label"
@@ -194,31 +259,38 @@ export default function App() {
           component="nav"
           direction="row"
           spacing={1}
-          sx={{ mt: 2, flexWrap: 'wrap' }}
+          sx={{
+            mt: 3,
+            mb: 2,
+            flexWrap: 'wrap',
+            gap: 0.5,
+            borderBottom: 1,
+            borderColor: 'divider',
+            pb: 1.5,
+          }}
           aria-label={t('mainNavigation')}
         >
-          <Button component={Link} to="/">
-            {t('home')}
-          </Button>
-          <Button component={Link} to="/warehouses">
-            {t('warehouses')}
-          </Button>
-          <Button component={Link} to="/dashboard">
-            {t('dashboard')}
-          </Button>
-          <Button component={Link} to="/supplier-orders">
-            {t('supplierOrders')}
-          </Button>
-          {user.role === 'Admin' && (
-            <>
-              <Button component={Link} to="/users">
-                {t('users')}
+          {sections.map((section) => {
+            const active =
+              section.to === '/'
+                ? location.pathname === '/'
+                : location.pathname === section.to || location.pathname.startsWith(`${section.to}/`)
+            return (
+              <Button
+                key={section.to}
+                component={Link}
+                to={section.to}
+                aria-current={active ? 'page' : undefined}
+                color={active ? 'primary' : 'inherit'}
+                sx={{
+                  bgcolor: active ? 'action.selected' : 'transparent',
+                  fontWeight: active ? 700 : 500,
+                }}
+              >
+                {section.label}
               </Button>
-              <Button component={Link} to="/logs">
-                {t('logs')}
-              </Button>
-            </>
-          )}
+            )
+          })}
         </Stack>
       )}
       <Box component="main">

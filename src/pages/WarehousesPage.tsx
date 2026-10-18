@@ -12,7 +12,6 @@ import {
   MenuItem,
   Select,
   Stack,
-  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -24,7 +23,14 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useSession } from '../app/SessionContext'
 import { business, type Warehouse, type WarehouseWrite } from '../lib/api/business'
-import { LoadError, Loading, PageControls, PageHeading, SearchForm } from './Shared'
+import {
+  LoadError,
+  Loading,
+  PageControls,
+  PageHeading,
+  SearchForm,
+  ResponsiveTable,
+} from './Shared'
 import { errorText } from '../lib/api/errors'
 
 const blank: WarehouseWrite = { name: '', address: '', city: '', countryCode: 'JO' }
@@ -128,7 +134,7 @@ export function WarehousesPage() {
           {query.data.items.length === 0 ? (
             <Typography>{t('noWarehouses')}</Typography>
           ) : (
-            <Table>
+            <ResponsiveTable>
               <TableHead>
                 <TableRow>
                   <TableCell>{t('warehouseName')}</TableCell>
@@ -160,7 +166,7 @@ export function WarehousesPage() {
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>
+            </ResponsiveTable>
           )}
           <PageControls page={page} totalPages={query.data.totalPages} change={setPage} />
         </>

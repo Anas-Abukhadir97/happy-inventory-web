@@ -11,7 +11,6 @@ import {
   MenuItem,
   Select,
   Stack,
-  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -20,7 +19,14 @@ import {
 } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { business } from '../lib/api/business'
-import { LoadError, Loading, PageControls, PageHeading, SearchForm } from './Shared'
+import {
+  LoadError,
+  Loading,
+  PageControls,
+  PageHeading,
+  SearchForm,
+  ResponsiveTable,
+} from './Shared'
 
 export function LogsPage() {
   const { t, i18n } = useTranslation()
@@ -76,7 +82,7 @@ export function LogsPage() {
           {query.data.items.length === 0 ? (
             <Typography>{t('noLogs')}</Typography>
           ) : (
-            <Table>
+            <ResponsiveTable>
               <TableHead>
                 <TableRow>
                   <TableCell>{t('time')}</TableCell>
@@ -99,7 +105,7 @@ export function LogsPage() {
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>
+            </ResponsiveTable>
           )}
           <PageControls page={page} totalPages={query.data.totalPages} change={setPage} />
         </>

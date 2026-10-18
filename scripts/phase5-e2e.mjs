@@ -373,7 +373,22 @@ async function main() {
   await page.getByLabel('Password').fill(bootstrapPassword)
   await page.getByRole('button', { name: 'Sign in' }).click()
   await page.getByRole('heading', { name: /Welcome/ }).waitFor()
+  assert.equal(
+    await page.getByRole('link', { name: 'Overview' }).getAttribute('aria-current'),
+    'page',
+  )
   await audit(page, 'English overview')
+  await page.screenshot({ path: resolve(output, 'overview-en.png'), fullPage: true })
+  await page.goto(`${baseUrl}/warehouses`)
+  await page.getByRole('link', { name: 'Phase 5 North' }).waitFor()
+  assert.equal(
+    await page.getByRole('link', { name: 'Warehouses' }).getAttribute('aria-current'),
+    'page',
+  )
+  await page.getByRole('textbox', { name: 'Search' }).fill('Phase 5 South')
+  await page.getByRole('button', { name: 'Search' }).click()
+  await page.getByRole('link', { name: 'Phase 5 South Updated' }).waitFor()
+  assert.equal(await page.getByRole('link', { name: 'Phase 5 North' }).count(), 0)
   await page.goto(`${baseUrl}/report`)
   await page.getByText('Phase 5 widget 12').waitFor()
   assert.equal(await page.locator('tbody tr').count(), 12)
@@ -442,6 +457,14 @@ async function main() {
   await mobilePage.getByLabel('Password').fill(bootstrapPassword)
   await mobilePage.getByRole('button', { name: 'Sign in' }).click()
   await mobilePage.getByRole('heading', { name: /Welcome/ }).waitFor()
+  const overviewWidth = await mobilePage.evaluate(() => ({
+    page: document.documentElement.scrollWidth,
+    viewport: window.innerWidth,
+  }))
+  assert.ok(
+    overviewWidth.page <= overviewWidth.viewport + 1,
+    `Overview page overflows mobile viewport: ${JSON.stringify(overviewWidth)}`,
+  )
   await mobilePage.goto(`${baseUrl}/supplier-orders`)
   await mobilePage.getByText('Recorded locally').waitFor()
   const mobileWidth = await mobilePage.evaluate(() => ({
