@@ -91,7 +91,8 @@ describe('Phase 4 screens', () => {
     vi.spyOn(business, 'lowestItems').mockResolvedValue([])
     renderAt('/dashboard', 'Auditor')
     expect(await screen.findByRole('heading', { name: en.dashboard })).toBeVisible()
-    expect(await screen.findByText('Widget')).toBeVisible()
+    expect((await screen.findAllByText('Widget')).length).toBeGreaterThan(0)
+    expect(screen.getByText(en.trackedWarehouses)).toBeVisible()
     expect(screen.getByRole('link', { name: en.printReport })).toBeVisible()
   })
 
