@@ -488,7 +488,10 @@ async function main() {
   await auditorPage.getByRole('button', { name: 'Mark as read' }).first().click()
   await auditorPage.getByText('Read', { exact: true }).first().waitFor()
   await audit(auditorPage, 'Auditor notifications')
-  await auditorPage.screenshot({ path: resolve(output, 'notifications-auditor-en.png'), fullPage: true })
+  await auditorPage.screenshot({
+    path: resolve(output, 'notifications-auditor-en.png'),
+    fullPage: true,
+  })
   await auditorPage.goto(`${baseUrl}/report`)
   await auditorPage.getByText('Phase 5 widget 12').waitFor()
   await auditorPage.goto(`${baseUrl}/supplier-orders`)
@@ -566,7 +569,10 @@ async function main() {
     `Notification page overflows mobile viewport: ${JSON.stringify(notificationWidth)}`,
   )
   await audit(mobilePage, 'mobile notifications')
-  await mobilePage.screenshot({ path: resolve(output, 'notifications-mobile-en.png'), fullPage: true })
+  await mobilePage.screenshot({
+    path: resolve(output, 'notifications-mobile-en.png'),
+    fullPage: true,
+  })
   await mobilePage.goto(`${baseUrl}/supplier-orders`)
   await mobilePage.getByText('Recorded locally').waitFor()
   const mobileWidth = await mobilePage.evaluate(() => ({
