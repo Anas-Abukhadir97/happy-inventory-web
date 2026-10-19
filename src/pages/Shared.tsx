@@ -15,11 +15,23 @@ import { errorText } from '../lib/api/errors'
 
 export function PageHeading({ title, description }: { title: string; description?: string }) {
   return (
-    <Box sx={{ py: 3 }}>
+    <Box
+      sx={{
+        py: { xs: 2, md: 3 },
+        mb: 1,
+        borderInlineStart: '4px solid',
+        borderColor: 'secondary.main',
+        paddingInlineStart: 2.5,
+      }}
+    >
       <Typography component="h1" variant="h4">
         {title}
       </Typography>
-      {description && <Typography color="text.secondary">{description}</Typography>}
+      {description && (
+        <Typography color="text.secondary" sx={{ mt: 0.75, lineHeight: 1.6 }}>
+          {description}
+        </Typography>
+      )}
     </Box>
   )
 }
@@ -28,7 +40,7 @@ export function Loading() {
   const { t } = useTranslation()
   return (
     <Box role="status" aria-label={t('loadingData')} sx={{ display: 'flex', py: 5 }}>
-      <CircularProgress />
+      <CircularProgress aria-label={t('loadingData')} />
     </Box>
   )
 }
@@ -104,6 +116,10 @@ export function ResponsiveTable({
       tabIndex={0}
       sx={{
         maxWidth: '100%',
+        bgcolor: 'background.paper',
+        border: 1,
+        borderColor: 'divider',
+        borderRadius: 2,
         '@media print': { overflowX: 'visible' },
         '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main' },
       }}

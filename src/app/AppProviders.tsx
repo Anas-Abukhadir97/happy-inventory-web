@@ -28,9 +28,36 @@ export function AppProviders({ children }: PropsWithChildren) {
     () =>
       createTheme({
         direction,
-        palette: { primary: { main: '#136b50' }, background: { default: '#f5f7f4' } },
-        typography: { fontFamily: 'Arial, Tahoma, sans-serif' },
-        shape: { borderRadius: 16 },
+        palette: {
+          primary: { main: '#146657', dark: '#0c463d', light: '#dcefe8', contrastText: '#ffffff' },
+          secondary: { main: '#b96743' },
+          background: { default: '#f6f5f0', paper: '#ffffff' },
+          text: { primary: '#192d29', secondary: '#5d706b' },
+          divider: '#e1e8e2',
+        },
+        typography: {
+          fontFamily: '"Segoe UI", Tahoma, Arial, sans-serif',
+          h3: { fontWeight: 800, letterSpacing: '-0.035em', lineHeight: 1.14 },
+          h4: { fontWeight: 760, letterSpacing: '-0.025em' },
+          h6: { fontWeight: 720 },
+          button: { fontWeight: 700, textTransform: 'none', letterSpacing: 0 },
+        },
+        shape: { borderRadius: 14 },
+        components: {
+          MuiButton: {
+            defaultProps: { disableElevation: true },
+            styleOverrides: { root: { borderRadius: 10, minHeight: 38, paddingInline: 16 } },
+          },
+          MuiPaper: { styleOverrides: { root: { backgroundImage: 'none' } } },
+          MuiOutlinedInput: { styleOverrides: { root: { borderRadius: 10 } } },
+          MuiTableCell: {
+            styleOverrides: {
+              head: { backgroundColor: '#f3f7f3', color: '#3c5750', fontWeight: 750 },
+              body: { borderBottomColor: '#e9eeea' },
+            },
+          },
+          MuiTableRow: { styleOverrides: { root: { '&:hover': { backgroundColor: '#fafcf9' } } } },
+        },
       }),
     [direction],
   )

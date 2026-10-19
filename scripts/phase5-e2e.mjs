@@ -369,6 +369,9 @@ async function main() {
   })
   const page = await context.newPage()
   await page.goto(baseUrl)
+  await page.getByRole('textbox', { name: 'Email address' }).waitFor()
+  await audit(page, 'English sign-in')
+  await page.screenshot({ path: resolve(output, 'login-en.png'), fullPage: true })
   await page.getByRole('textbox', { name: 'Email address' }).fill('admin@happywarehouse.com')
   await page.getByLabel('Password').fill(bootstrapPassword)
   await page.getByRole('button', { name: 'Sign in' }).click()
@@ -379,6 +382,10 @@ async function main() {
   )
   await audit(page, 'English overview')
   await page.screenshot({ path: resolve(output, 'overview-en.png'), fullPage: true })
+  await page.goto(`${baseUrl}/dashboard`)
+  await page.getByText('Warehouses tracked').waitFor()
+  await audit(page, 'English dashboard')
+  await page.screenshot({ path: resolve(output, 'dashboard-en.png'), fullPage: true })
   await page.goto(`${baseUrl}/warehouses`)
   await page.getByRole('link', { name: 'Phase 5 North' }).waitFor()
   assert.equal(
@@ -414,6 +421,10 @@ async function main() {
   assert.ok(arabicPdf.length > 3000)
   await writeFile(resolve(output, 'report-ar.pdf'), arabicPdf)
   await page.emulateMedia({ media: 'screen' })
+  await page.goto(baseUrl)
+  await page.getByRole('heading', { name: /مرحبًا/ }).waitFor()
+  await audit(page, 'Arabic overview')
+  await page.screenshot({ path: resolve(output, 'overview-ar.png'), fullPage: true })
   await page.goto(`${baseUrl}/supplier-orders`)
   await page.getByText('سُجّل محليًا').waitFor()
   await audit(page, 'Arabic supplier orders')
@@ -453,6 +464,29 @@ async function main() {
   })
   const mobilePage = await mobileContext.newPage()
   await mobilePage.goto(baseUrl)
+  await mobilePage.getByRole('textbox', { name: 'Email address' }).waitFor()
+  await audit(mobilePage, 'mobile sign-in')
+  await mobilePage.screenshot({ path: resolve(output, 'login-mobile-en.png'), fullPage: true })
+  const signInBounds = await mobilePage.getByRole('button', { name: 'Sign in' }).boundingBox()
+  assert.ok(
+    signInBounds && signInBounds.y + signInBounds.height <= 844,
+    'Mobile sign-in button should be visible without scrolling',
+  )
+  await mobilePage.getByRole('combobox', { name: 'Language' }).click()
+  await mobilePage.getByRole('option', { name: 'العربية' }).click()
+  await mobilePage.waitForFunction(() => document.documentElement.dir === 'rtl')
+  await audit(mobilePage, 'mobile Arabic sign-in')
+  await mobilePage.screenshot({ path: resolve(output, 'login-mobile-ar.png'), fullPage: true })
+  const arabicSignInBounds = await mobilePage
+    .getByRole('button', { name: 'تسجيل الدخول' })
+    .boundingBox()
+  assert.ok(
+    arabicSignInBounds && arabicSignInBounds.y + arabicSignInBounds.height <= 844,
+    'Arabic mobile sign-in button should be visible without scrolling',
+  )
+  await mobilePage.getByRole('combobox', { name: 'اللغة' }).click()
+  await mobilePage.getByRole('option', { name: 'English' }).click()
+  await mobilePage.waitForFunction(() => document.documentElement.lang === 'en')
   await mobilePage.getByRole('textbox', { name: 'Email address' }).fill(auditorEmail)
   await mobilePage.getByLabel('Password').fill(bootstrapPassword)
   await mobilePage.getByRole('button', { name: 'Sign in' }).click()
@@ -465,6 +499,18 @@ async function main() {
     overviewWidth.page <= overviewWidth.viewport + 1,
     `Overview page overflows mobile viewport: ${JSON.stringify(overviewWidth)}`,
   )
+  await mobilePage.goto(`${baseUrl}/dashboard`)
+  await mobilePage.getByText('Warehouses tracked').waitFor()
+  const dashboardWidth = await mobilePage.evaluate(() => ({
+    page: document.documentElement.scrollWidth,
+    viewport: window.innerWidth,
+  }))
+  assert.ok(
+    dashboardWidth.page <= dashboardWidth.viewport + 1,
+    `Dashboard page overflows mobile viewport: ${JSON.stringify(dashboardWidth)}`,
+  )
+  await audit(mobilePage, 'mobile dashboard')
+  await mobilePage.screenshot({ path: resolve(output, 'dashboard-mobile-en.png'), fullPage: true })
   await mobilePage.goto(`${baseUrl}/supplier-orders`)
   await mobilePage.getByText('Recorded locally').waitFor()
   const mobileWidth = await mobilePage.evaluate(() => ({
