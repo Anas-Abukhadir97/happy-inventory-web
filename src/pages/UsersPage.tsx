@@ -12,6 +12,7 @@ import {
   FormControlLabel,
   InputLabel,
   MenuItem,
+  Paper,
   Select,
   Stack,
   TableBody,
@@ -147,6 +148,21 @@ export function UsersPage() {
   return (
     <>
       <PageHeading title={t('users')} description={t('usersDescription')} />
+      <Typography component="h2" variant="h6" sx={{ mb: 1, fontWeight: 750 }}>
+        {t('roleGuideTitle')}
+      </Typography>
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mb: 3 }}>
+        {(['Admin', 'Management', 'Auditor'] as const).map((role) => (
+          <Paper key={role} variant="outlined" sx={{ p: 2, flex: 1, borderRadius: 3 }}>
+            <Typography component="h3" variant="subtitle1" sx={{ fontWeight: 750 }}>
+              {t(`role.${role}`)}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {t(`roleDescription.${role}`)}
+            </Typography>
+          </Paper>
+        ))}
+      </Stack>
       <Button variant="contained" sx={{ mb: 2 }} onClick={() => open(null)}>
         {t('addUser')}
       </Button>

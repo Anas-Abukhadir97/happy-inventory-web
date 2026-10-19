@@ -17,6 +17,8 @@ export type LogSummary = Schemas['LogSummary']
 export type LogDetail = Schemas['LogDetail']
 export type SupplierOrder = Schemas['SupplierOrder']
 export type SupplierOrderCreate = Schemas['SupplierOrderCreate']
+export type Notification = Schemas['Notification']
+export type NotificationCreate = Schemas['NotificationCreate']
 export type Paged<T> = {
   items: T[]
   page: number
@@ -106,4 +108,10 @@ export const business = {
     request<Paged<SupplierOrder>>(`/api/v1/supplier-orders?${pageQuery(page)}`),
   createSupplierOrder: (body: SupplierOrderCreate) =>
     request<SupplierOrder>('/api/v1/supplier-orders', 'POST', body),
+  notifications: (page: number) =>
+    request<Paged<Notification>>(`/api/v1/notifications?${pageQuery(page)}`),
+  createNotification: (body: NotificationCreate) =>
+    request<Notification>('/api/v1/notifications', 'POST', body),
+  markNotificationRead: (id: string) =>
+    request<void>(`/api/v1/notifications/${encodeURIComponent(id)}/read`, 'POST'),
 }
