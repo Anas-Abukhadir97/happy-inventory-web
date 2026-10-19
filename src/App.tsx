@@ -1,6 +1,8 @@
 import { lazy, Suspense, useState, type FormEvent } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import {
   Alert,
+  Badge,
   Box,
   Button,
   CircularProgress,
@@ -19,6 +21,8 @@ import { useTranslation } from 'react-i18next'
 import { Link, Route, Routes, useLocation } from 'react-router-dom'
 import { useSession } from './app/SessionContext'
 import { AuthError } from './lib/auth/session'
+import { business } from './lib/api/business'
+import { useNotificationStream } from './lib/notifications/useNotificationStream'
 
 const WarehousesPage = lazy(async () => ({
   default: (await import('./pages/WarehousesPage')).WarehousesPage,
@@ -32,6 +36,9 @@ const LogsPage = lazy(async () => ({ default: (await import('./pages/LogsPage'))
 const ReportPage = lazy(async () => ({ default: (await import('./pages/ReportPage')).ReportPage }))
 const SupplierOrdersPage = lazy(async () => ({
   default: (await import('./pages/SupplierOrdersPage')).SupplierOrdersPage,
+}))
+const NotificationsPage = lazy(async () => ({
+  default: (await import('./pages/NotificationsPage')).NotificationsPage,
 }))
 
 function Login() {
@@ -200,6 +207,7 @@ function Welcome() {
   const operations = [
     { to: '/warehouses', title: t('warehouses'), description: t('warehousesDescription') },
     { to: '/dashboard', title: t('dashboard'), description: t('dashboardDescription') },
+    { to: '/notifications', title: t('notifications'), description: t('notificationsDescription') },
     {
       to: '/supplier-orders',
       title: t('supplierOrders'),
@@ -347,6 +355,13 @@ function NotFoundPage() {
 export default function App() {
   const { t, i18n } = useTranslation()
   const { ready, user, logout } = useSession()
+  const notificationsLive = useNotificationStream(user?.id)
+  const recentNotifications = useQuery({
+    queryKey: ['notifications', 1],
+    queryFn: () => business.notifications(1),
+    enabled: Boolean(user),
+  })
+  const hasRecentUnread = recentNotifications.data?.items.some((item) => !item.readAtUtc) ?? false
   const [logoutError, setLogoutError] = useState(false)
   const location = useLocation()
   const sections = user
@@ -354,6 +369,7 @@ export default function App() {
         { to: '/', label: t('overview') },
         { to: '/warehouses', label: t('warehouses') },
         { to: '/dashboard', label: t('dashboard') },
+        { to: '/notifications', label: t('notifications') },
         { to: '/supplier-orders', label: t('supplierOrders') },
         ...(user.role === 'Admin'
           ? [
@@ -485,7 +501,13 @@ export default function App() {
                   '&:hover': { bgcolor: active ? 'primary.light' : 'action.hover' },
                 }}
               >
-                {section.label}
+                {section.to === '/notifications' ? (
+                  <Badge color="error" variant="dot" invisible={!hasRecentUnread}>
+                    {section.label}
+                  </Badge>
+                ) : (
+                  section.label
+                )}
               </Button>
             )
           })}
@@ -522,6 +544,10 @@ export default function App() {
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/report" element={<ReportPage />} />
               <Route path="/supplier-orders" element={<SupplierOrdersPage />} />
+              <Route
+                path="/notifications"
+                element={<NotificationsPage live={notificationsLive} />}
+              />
               {user.role === 'Admin' && (
                 <>
                   <Route path="/users" element={<UsersPage />} />

@@ -10,6 +10,7 @@ export function errorText(error: unknown, t: (key: string) => string) {
       precondition_required: 'staleRecord',
       access_forbidden: 'accessForbidden',
       authentication_required: 'requestUnauthorized',
+      notification_channel_unavailable: 'notificationChannelUnavailable',
     }
     return t(keys[error.code] ?? 'serviceUnavailable')
   }

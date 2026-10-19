@@ -183,6 +183,11 @@ async function main() {
   }
   const management = await login(managerEmail, bootstrapPassword)
   const auditor = await login(auditorEmail, bootstrapPassword)
+  const auditorId = expectStatus(
+    await api('GET', `/api/v1/users?search=${encodeURIComponent(auditorEmail)}`, admin),
+    200,
+    'auditor lookup',
+  ).body.items[0].id
   expectStatus(
     await api('POST', '/api/v1/auth/login', null, {
       email: disabledEmail,
@@ -386,6 +391,19 @@ async function main() {
   await page.getByText('Warehouses tracked').waitFor()
   await audit(page, 'English dashboard')
   await page.screenshot({ path: resolve(output, 'dashboard-en.png'), fullPage: true })
+  await page.goto(`${baseUrl}/users`)
+  await page.getByRole('heading', { name: 'What each role can do' }).waitFor()
+  await audit(page, 'English roles')
+  await page.goto(`${baseUrl}/notifications`)
+  await page.getByRole('heading', { name: 'Send a notification' }).waitFor()
+  await page.getByRole('combobox', { name: 'Recipient' }).fill(auditorEmail)
+  await page.getByRole('option', { name: /auditor@phase5.example.test/ }).click()
+  await page.getByRole('textbox', { name: 'Title' }).fill('Initial stock review')
+  await page.getByRole('textbox', { name: 'Message' }).fill('Please review the stock report.')
+  await page.getByRole('button', { name: 'Send notification' }).click()
+  await page.getByText('Notification saved for the recipient.').waitFor()
+  await audit(page, 'English notification composer')
+  await page.screenshot({ path: resolve(output, 'notifications-en.png'), fullPage: true })
   await page.goto(`${baseUrl}/warehouses`)
   await page.getByRole('link', { name: 'Phase 5 North' }).waitFor()
   assert.equal(
@@ -398,6 +416,8 @@ async function main() {
   assert.equal(await page.getByRole('link', { name: 'Phase 5 North' }).count(), 0)
   await page.goto(`${baseUrl}/report`)
   await page.getByText('Phase 5 widget 12').waitFor()
+  await page.waitForFunction(() => !document.querySelector('.report-actions button[disabled]'))
+  await page.waitForTimeout(300)
   assert.equal(await page.locator('tbody tr').count(), 12)
   await audit(page, 'English report')
   await page.emulateMedia({ media: 'print' })
@@ -425,6 +445,10 @@ async function main() {
   await page.getByRole('heading', { name: /مرحبًا/ }).waitFor()
   await audit(page, 'Arabic overview')
   await page.screenshot({ path: resolve(output, 'overview-ar.png'), fullPage: true })
+  await page.goto(`${baseUrl}/notifications`)
+  await page.getByRole('heading', { name: 'إرسال إشعار' }).waitFor()
+  await audit(page, 'Arabic notification composer')
+  await page.screenshot({ path: resolve(output, 'notifications-ar.png'), fullPage: true })
   await page.goto(`${baseUrl}/supplier-orders`)
   await page.getByText('سُجّل محليًا').waitFor()
   await audit(page, 'Arabic supplier orders')
@@ -445,6 +469,29 @@ async function main() {
   await auditorPage.getByRole('button', { name: 'Sign in' }).click()
   await auditorPage.getByRole('heading', { name: /Welcome/ }).waitFor()
   assert.equal(await auditorPage.getByRole('link', { name: 'Users and access' }).count(), 0)
+  await auditorPage.goto(`${baseUrl}/notifications`)
+  await auditorPage.getByRole('heading', { name: 'Initial stock review' }).waitFor()
+  assert.equal(await auditorPage.getByRole('heading', { name: 'Send a notification' }).count(), 0)
+  await auditorPage.getByText('Live updates connected').waitFor()
+  expectStatus(
+    await api('POST', '/api/v1/notifications', admin, {
+      recipientUserId: auditorId,
+      title: 'Count aisle A',
+      body: 'Please verify aisle A now.',
+      sendEmail: false,
+      sendSms: false,
+    }),
+    201,
+    'live notification',
+  )
+  await auditorPage.getByRole('heading', { name: 'Count aisle A' }).waitFor()
+  await auditorPage.getByRole('button', { name: 'Mark as read' }).first().click()
+  await auditorPage.getByText('Read', { exact: true }).first().waitFor()
+  await audit(auditorPage, 'Auditor notifications')
+  await auditorPage.screenshot({
+    path: resolve(output, 'notifications-auditor-en.png'),
+    fullPage: true,
+  })
   await auditorPage.goto(`${baseUrl}/report`)
   await auditorPage.getByText('Phase 5 widget 12').waitFor()
   await auditorPage.goto(`${baseUrl}/supplier-orders`)
@@ -511,6 +558,21 @@ async function main() {
   )
   await audit(mobilePage, 'mobile dashboard')
   await mobilePage.screenshot({ path: resolve(output, 'dashboard-mobile-en.png'), fullPage: true })
+  await mobilePage.goto(`${baseUrl}/notifications`)
+  await mobilePage.getByRole('heading', { name: 'Initial stock review' }).waitFor()
+  const notificationWidth = await mobilePage.evaluate(() => ({
+    page: document.documentElement.scrollWidth,
+    viewport: window.innerWidth,
+  }))
+  assert.ok(
+    notificationWidth.page <= notificationWidth.viewport + 1,
+    `Notification page overflows mobile viewport: ${JSON.stringify(notificationWidth)}`,
+  )
+  await audit(mobilePage, 'mobile notifications')
+  await mobilePage.screenshot({
+    path: resolve(output, 'notifications-mobile-en.png'),
+    fullPage: true,
+  })
   await mobilePage.goto(`${baseUrl}/supplier-orders`)
   await mobilePage.getByText('Recorded locally').waitFor()
   const mobileWidth = await mobilePage.evaluate(() => ({
