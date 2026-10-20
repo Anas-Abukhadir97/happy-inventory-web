@@ -71,6 +71,7 @@
   "sessionExpired": "Your session ended. Sign in again.",
   "requestUnauthorized": "Your session changed. Check your sign-in, then retry this action.",
   "serviceUnavailable": "The service is unavailable. Check your connection and retry.",
+  "requestRateLimited": "Too many requests. Try again shortly.",
   "warehouseName": "Warehouse name",
   "address": "Address",
   "city": "City",

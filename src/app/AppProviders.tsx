@@ -7,10 +7,17 @@ import { CssBaseline, ThemeProvider, createTheme } from '@mui/material'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import '../lib/i18n'
+import { BusinessError } from '../lib/api/business'
 import { SessionProvider } from './SessionProvider'
 
 const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
+  defaultOptions: {
+    queries: {
+      retry: (failureCount, error) =>
+        !(error instanceof BusinessError && error.status === 429) && failureCount < 1,
+      refetchOnWindowFocus: false,
+    },
+  },
 })
 
 export function AppProviders({ children }: PropsWithChildren) {
