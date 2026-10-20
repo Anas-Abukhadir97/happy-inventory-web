@@ -18,6 +18,7 @@ describe('business API transport', () => {
     expect(errorText(new BusinessError('authentication_required', 401), translate)).toBe(
       en.requestUnauthorized,
     )
+    expect(errorText(new BusinessError('rate_limited', 429), translate)).toBe(en.requestRateLimited)
     expect(errorText(new BusinessError('unknown', 500), translate)).toBe(en.serviceUnavailable)
     expect(errorText(new Error('offline'), translate)).toBe(en.serviceUnavailable)
   })
